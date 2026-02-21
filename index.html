@@ -408,18 +408,21 @@ let imagePool = [];
 let slideshowInterval = null;
 let currentPage = 1;
 let slideshowRunning = false;
-
-        async function fetchImages() {
+async function fetchImages() {
     try {
+        // Only Radha Krishna specific terms for search
         const searchTerms = [
             "Radha Krishna",
             "Krishna flute",
             "Radha Krishna couple",
             "Radha Krishna painting",
-            "Krishna art",
-            "Radha Krishna illustration"
+            "Krishna Radha love",
+            "Radha Krishna art",
+            "Radha Krishna illustration",
+            "Radha Krishna photo"
         ];
 
+        // Randomly select one term from the search list
         const randomSearchTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
 
         const response = await fetch(
@@ -430,16 +433,20 @@ let slideshowRunning = false;
 
         if (!data.hits || data.hits.length === 0) return;
 
+        // Adding the fetched images to the pool
         imagePool = data.hits.map(img => img.largeImageURL);
 
+        // Increment page for pagination
         currentPage++;
 
     } catch (error) {
         console.log("Error fetching images:", error);
     }
 }
+
+
+
         
-                
         function getNextImage() {
     if (imagePool.length === 0) return null;
 
@@ -474,6 +481,7 @@ async function startSlideshow() {
     </script>
 </body>
 </html>
+
 
 
 
