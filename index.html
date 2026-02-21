@@ -411,7 +411,7 @@ let currentPage = 1;
 async function fetchImages() {
     try {
         const response = await fetch(
-            `https://pixabay.com/api/?key=${API_KEY}&user_id=32790711&image_type=illustration&per_page=20&page=${currentPage}&safesearch=true`
+            `https://pixabay.com/api/?key=${API_KEY}&q=radha+krishna&image_type=photo&orientation=vertical&per_page=20&page=${currentPage}&safesearch=true`
         );
 
         const data = await response.json();
@@ -458,6 +458,7 @@ async function startSlideshow() {
     </script>
 </body>
 </html>
+
 
 
 
