@@ -410,21 +410,26 @@ let currentPage = 1;
 let slideshowRunning = false;
 async function fetchImages() {
     try {
+        const keywords = [
+            "baby krishna illustration",
+            "radha krishna cute illustration",
+            "krishna flute art",
+            "radha krishna cartoon",
+            "krishna moon art"
+        ];
+
+        const randomKeyword =
+            keywords[Math.floor(Math.random() * keywords.length)];
+
         const response = await fetch(
-            `https://pixabay.com/api/?key=${API_KEY}&user_id=32790711&q=krishna+radha&image_type=illustration&per_page=20&page=${currentPage}&safesearch=true`
+            `https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(randomKeyword)}&image_type=illustration&orientation=vertical&per_page=20&page=${currentPage}&safesearch=true`
         );
 
         const data = await response.json();
 
         if (!data.hits || data.hits.length === 0) return;
 
-        // Extra filter (double safety)
-        const filtered = data.hits.filter(img =>
-            img.tags.toLowerCase().includes("krishna") ||
-            img.tags.toLowerCase().includes("radha")
-        );
-
-        imagePool = filtered.map(img => img.largeImageURL);
+        imagePool = data.hits.map(img => img.largeImageURL);
 
         currentPage++;
 
@@ -467,6 +472,7 @@ async function startSlideshow() {
     </script>
 </body>
 </html>
+
 
 
 
