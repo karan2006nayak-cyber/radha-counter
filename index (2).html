@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radha Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #D054FF, #5463FF);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        #counter {
+            color: white;
+            font-size: 20px;
+            margin-top: 20px;
+            font-weight: bold;
+            position: absolute;
+            bottom: 20px;
+        }
+        .radha-name {
+            color: white;
+            font-size: 18px;
+            position: absolute;
+            bottom: -100px;
+            animation: moveUp 10s linear;
+        }
+        @keyframes moveUp {
+            0% { bottom: -100px; }
+            100% { bottom: 100vh; }
+        }
+        #radhaButton {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background-color: #ff6347;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+        #radhaButton:active {
+            background-color: #ff0000;
+        }
+        #imageSetup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            z-index: 100;
+        }
+        #imageSetupModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        #imageSetupModal .modal-content {
+            background: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+            height: 90%;
+            overflow-y: scroll;
+        }
+        .mini-img-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .mini-img-container img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            padding: 5px;
+            cursor: pointer;
+        }
+        #imageSlideshow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    transition: background-image 1s ease-in-out;
+}
+
+
+/* ----- BEST SLIDESHOW EFFECTS ----- */
+
+/* 1) FADE */
+.fade {
+    animation: fadeAnim 10s ease-in-out;
+}
+
+@keyframes fadeAnim {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+
+/* 2) SLIDE LEFT */
+.slideLeft {
+    animation: slideLeftAnim 10s ease-in-out;
+}
+@keyframes slideLeftAnim {
+    0% { transform: translateX(100%); opacity: 0; }
+    30% { transform: translateX(0); opacity: 1; }
+    70% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(-100%); opacity: 0; }
+}
+
+/* 3) SLIDE RIGHT */
+.slideRight {
+    animation: slideRightAnim 10s ease-in-out;
+}
+@keyframes slideRightAnim {
+    0% { transform: translateX(-100%); opacity: 0; }
+    30% { transform: translateX(0); opacity: 1; }
+    70% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+}
+
+/* 4) ZOOM IN */
+.zoomIn {
+    animation: zoomInAnim 10s ease-in-out;
+}
+@keyframes zoomInAnim {
+    0% { transform: scale(1); opacity: 0; }
+    30% { opacity: 1; }
+    70% { transform: scale(1.1); opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* 5) ZOOM OUT */
+.zoomOut {
+    animation: zoomOutAnim 10s ease-in-out;
+}
+@keyframes zoomOutAnim {
+    0% { transform: scale(1.2); opacity: 0; }
+    30% { transform: scale(1); opacity: 1; }
+    70% { transform: scale(1); opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* 6) ROTATE LEFT */
+.rotateLeft {
+    animation: rotateLeftAnim 10s ease-in-out;
+}
+@keyframes rotateLeftAnim {
+    0% { transform: rotate(-45deg) scale(1); opacity: 0; }
+    30% { transform: rotate(0deg) scale(1); opacity: 1; }
+    70% { transform: rotate(0deg) scale(1); opacity: 1; }
+    100% { transform: rotate(-45deg) scale(1); opacity: 0; }
+}
+
+/* 7) ROTATE RIGHT */
+.rotateRight {
+    animation: rotateRightAnim 10s ease-in-out;
+}
+@keyframes rotateRightAnim {
+    0% { transform: rotate(45deg) scale(1); opacity: 0; }
+    30% { transform: rotate(0deg) scale(1); opacity: 1; }
+    70% { transform: rotate(0deg) scale(1); opacity: 1; }
+    100% { transform: rotate(45deg) scale(1); opacity: 0; }
+}
+
+/* 8) BLUR IN/OUT */
+.blurEffect {
+    animation: blurAnim 10s ease-in-out;
+}
+@keyframes blurAnim {
+    0% { filter: blur(10px); opacity: 0; }
+    30% { filter: blur(0px); opacity: 1; }
+    70% { filter: blur(0px); opacity: 1; }
+    100% { filter: blur(10px); opacity: 0; }
+}
+
+
+        
+        #okBtn {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #okBtn:active {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+
+
+    <div id="counter">Conting: 0</div>
+    <button id="radhaButton">राधा</button>
+    <div id="imageSetup">Set Images</div>
+
+    <div id="imageSetupModal">
+        <div class="modal-content">
+            <h3>Select Images</h3>
+            <input type="file" id="imageInput" accept="image/*" multiple>
+            <div class="mini-img-container" id="miniImages"></div>
+            <button id="okBtn">OK</button>
+        </div>
+    </div>
+
+    <div id="imageSlideshow"></div>
+
+    <script>
+        let count = localStorage.getItem('count') ? parseInt(localStorage.getItem('count')) : 0;
+        let images = JSON.parse(localStorage.getItem('images')) || [];
+        const counterElement = document.getElementById('counter');
+        const radhaButton = document.getElementById('radhaButton');
+        const imageSetupModal = document.getElementById('imageSetupModal');
+        const imageSetup = document.getElementById('imageSetup');
+        const imageInput = document.getElementById('imageInput');
+        const miniImagesContainer = document.getElementById('miniImages');
+        const okBtn = document.getElementById('okBtn');
+        const imageSlideshow = document.getElementById('imageSlideshow');
+
+        let draggingImage = null;
+
+        
+
+
+
+        function addMiniImages() {
+            miniImagesContainer.innerHTML = ''; // Clear previous images
+            images.forEach((imageSrc, index) => {
+                let imgDiv = document.createElement('div');
+                imgDiv.style.position = 'relative';
+                let img = document.createElement('img');
+                img.src = imageSrc;
+                img.draggable = true;
+                img.dataset.index = index;
+                img.addEventListener('dragstart', dragStart);
+                img.addEventListener('dragover', dragOver);
+                img.addEventListener('drop', dropImage);
+                img.addEventListener('dragend', dragEnd);
+
+                let deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'X';
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.addEventListener('click', () => deleteImage(index));
+
+                imgDiv.appendChild(img);
+                imgDiv.appendChild(deleteBtn);
+                miniImagesContainer.appendChild(imgDiv);
+            });
+        }
+
+        function deleteImage(index) {
+            images.splice(index, 1);
+            localStorage.setItem('images', JSON.stringify(images));
+            addMiniImages();
+        }
+
+        function dragStart(e) {
+            draggingImage = e.target;
+            e.dataTransfer.setData('text/plain', e.target.dataset.index);
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function dropImage(e) {
+            e.preventDefault();
+            if (draggingImage !== e.target) {
+                let draggedIndex = draggingImage.dataset.index;
+                let targetIndex = e.target.dataset.index;
+                [images[draggedIndex], images[targetIndex]] = [images[targetIndex], images[draggedIndex]];
+                localStorage.setItem('images', JSON.stringify(images));
+                addMiniImages();
+            }
+        }
+
+        function dragEnd() {
+            draggingImage = null;
+        }
+
+        radhaButton.addEventListener('click', () => {
+            
+
+            let radhaName = document.createElement('div');
+            radhaName.classList.add('radha-name');
+            radhaName.textContent = 'राधा';
+
+            // Random position for names
+            const randomLeft = Math.random() * window.innerWidth;
+            const randomDuration = Math.random() * 5 + 5; // Random duration between 5 and 10 seconds
+
+            radhaName.style.left = `${randomLeft}px`;
+            radhaName.style.animationDuration = `${randomDuration}s`;
+
+            document.body.appendChild(radhaName);
+
+            setTimeout(() => {
+                radhaName.remove();
+            }, randomDuration * 1000);
+        });
+
+        imageSetup.addEventListener('click', () => {
+            imageSetupModal.style.display = 'flex';
+        });
+        
+        okBtn.addEventListener('click', () => {
+            imageSetupModal.style.display = 'none';
+        });
+
+        
+
+        imageInput.addEventListener('change', (e) => {
+            let files = e.target.files;
+            for (let i = 0; i < files.length; i++) {
+                images.push(URL.createObjectURL(files[i]));
+            }
+            localStorage.setItem('images', JSON.stringify(images));
+            addMiniImages();
+        });
+
+        window.onload = () => {
+            counterElement.textContent = `Conting: ${count}`;
+            addMiniImages();
+            
+        };
+        
+        
+        
+
+radhaButton.addEventListener('click', () => {
+    count++;
+    localStorage.setItem('count', count);
+    counterElement.textContent = `Conting: ${count}`;
+
+    let radhaName = document.createElement('div');
+    radhaName.classList.add('radha-name');
+    radhaName.textContent = 'राधा';
+    radhaName.style.color = "red";  // Set color to red
+    const randomLeft = Math.random() * window.innerWidth;
+    const randomDuration = Math.random() * 5 + 5; // Random duration between 5 and 10 seconds
+    radhaName.style.left = `${randomLeft}px`;
+    radhaName.style.animationDuration = `${randomDuration}s`;
+
+    document.body.appendChild(radhaName);
+
+    setTimeout(() => {
+        radhaName.remove();
+    }, randomDuration * 1000);
+
+    // Start slideshow after Radha button click
+    startSlideshowStrict();
+
+});
+
+
+
+
+/* ============================= */
+/* STRICT CONTROLLED SLIDESHOW */
+/* ============================= */
+
+let slideshowInterval = null;
+let stopTimer = null;
+let currentImageIndex = 0;
+let slideshowRunning = false;
+
+/* All effects list */
+const effectsList = [
+    "fade","slideLeft","slideRight",
+    "zoomIn","zoomOut",
+    "rotateLeft","rotateRight",
+    "blurEffect"
+];
+
+function startSlideshowStrict() {
+
+    if (slideshowRunning || images.length === 0) return;
+
+    slideshowRunning = true;
+
+    slideshowInterval = setInterval(() => {
+
+        // Random effect
+        let effect = effectsList[Math.floor(Math.random() * effectsList.length)];
+
+        imageSlideshow.className = "";
+        imageSlideshow.classList.add(effect);
+
+        imageSlideshow.style.backgroundImage =
+            `url(${images[currentImageIndex]})`;
+
+        currentImageIndex =
+            (currentImageIndex + 1) % images.length;
+
+    }, 10000);
+}
+
+function stopSlideshowStrict() {
+
+    slideshowRunning = false;
+    clearInterval(slideshowInterval);
+    slideshowInterval = null;
+}
+
+/* Radha Button Control */
+radhaButton.addEventListener("click", () => {
+
+    startSlideshowStrict();
+
+    /* 10 sec baad agar button nahi dabaya to stop */
+    clearTimeout(stopTimer);
+    stopTimer = setTimeout(() => {
+        stopSlideshowStrict();
+    }, 10000);
+});
+
+/* Alt+Tab Pause */
+document.addEventListener("visibilitychange", () => {
+
+    if (document.hidden) {
+        clearInterval(slideshowInterval);
+    } else {
+        if (slideshowRunning) {
+            startSlideshowStrict();
+        }
+    }
+});
+
+
+    </script>
+</body>
+</html>
