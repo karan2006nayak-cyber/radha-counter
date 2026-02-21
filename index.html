@@ -424,7 +424,7 @@ async function fetchImages() {
         console.log("Error fetching images:", error);
     }
 }
-    function getNextImage() {
+        function getNextImage() {
     if (imagePool.length === 0) return null;
 
     const index = Math.floor(Math.random() * imagePool.length);
@@ -458,6 +458,7 @@ async function startSlideshow() {
     </script>
 </body>
 </html>
+
 
 
 
