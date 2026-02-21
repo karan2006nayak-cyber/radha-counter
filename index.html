@@ -408,21 +408,22 @@ let imagePool = [];
 let slideshowInterval = null;
 let currentPage = 1;
 let slideshowRunning = false;
-async function fetchImages() {
+
+        async function fetchImages() {
     try {
-        const keywords = [
-            "baby krishna illustration",
-            "radha krishna cute illustration",
-            "krishna flute art",
-            "radha krishna cartoon",
-            "krishna moon art"
+        const searchTerms = [
+            "Radha Krishna",
+            "Krishna flute",
+            "Radha Krishna couple",
+            "Radha Krishna painting",
+            "Krishna art",
+            "Radha Krishna illustration"
         ];
 
-        const randomKeyword =
-            keywords[Math.floor(Math.random() * keywords.length)];
+        const randomSearchTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
 
         const response = await fetch(
-            `https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(randomKeyword)}&image_type=illustration&orientation=vertical&per_page=20&page=${currentPage}&safesearch=true`
+            `https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(randomSearchTerm)}&image_type=photo&orientation=vertical&per_page=20&page=${currentPage}&safesearch=true`
         );
 
         const data = await response.json();
@@ -438,6 +439,7 @@ async function fetchImages() {
     }
 }
         
+                
         function getNextImage() {
     if (imagePool.length === 0) return null;
 
@@ -472,6 +474,7 @@ async function startSlideshow() {
     </script>
 </body>
 </html>
+
 
 
 
