@@ -228,7 +228,52 @@
         #okBtn:active {
             background-color: #218838;
         }
+        
+        /* ===== FRAME EDITOR ===== */
+
+.blur-layer{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    filter:blur(12px) brightness(0.6);
+    pointer-events:none;
+}
+
+.frame{
+    position:fixed;
+    width:800px;
+    height:450px;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    overflow:hidden;
+    border:2px solid white;
+    z-index:5;
+}
+
+.clear-layer{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    cursor:grab;
+}
+
+.frame-controls{
+    position:fixed;
+    bottom:30px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:10px;
+    z-index:20;
+}
+        
     </style>
+    
+  
+
 </head>
 <body>
 
@@ -248,6 +293,47 @@
     </div>
 
     <div id="imageSlideshow"></div>
+    <!-- ===== Frame Editor ===== -->
+
+<input type="file" id="frameUpload" style="position:fixed; top:20px; left:20px; z-index:20;">
+
+<img id="blurImage" class="blur-layer">
+<div class="frame">
+    <img id="clearImage" class="clear-layer">
+</div>
+
+<div class="frame-controls">
+    <button id="zoomIn">+</button>
+    <button id="zoomOut">-</button>
+    <button id="rotateFrame">Rotate</button>
+</div>
+
+<!-- Mode Selection Popup -->
+<div id="modePopup" style="
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:2000;
+">
+    <div style="
+        background:white;
+        padding:30px;
+        text-align:center;
+        border-radius:10px;
+        width:300px;
+    ">
+        <h3>Choose Slideshow Mode</h3>
+        <button id="onlineModeBtn">Online</button>
+        <button id="offlineModeBtn">Offline</button>
+    </div>
+</div>
+
 
     <script>
         let count = localStorage.getItem('count') ? parseInt(localStorage.getItem('count')) : 0;
@@ -256,10 +342,15 @@
         const radhaButton = document.getElementById('radhaButton');
         const imageSetupModal = document.getElementById('imageSetupModal');
         const imageSetup = document.getElementById('imageSetup');
-        const imageInput = document.getElementById('imageInput');
         const miniImagesContainer = document.getElementById('miniImages');
         const okBtn = document.getElementById('okBtn');
         const imageSlideshow = document.getElementById('imageSlideshow');
+        const modePopup = document.getElementById("modePopup");
+        const onlineModeBtn = document.getElementById("onlineModeBtn");
+        const offlineModeBtn = document.getElementById("offlineModeBtn");
+        
+        
+        let cropper;
 
         let draggingImage = null;
 
@@ -322,26 +413,7 @@
             draggingImage = null;
         }
 
-        radhaButton.addEventListener('click', () => {
-            
-
-            let radhaName = document.createElement('div');
-            radhaName.classList.add('radha-name');
-            radhaName.textContent = 'राधा';
-
-            // Random position for names
-            const randomLeft = Math.random() * window.innerWidth;
-            const randomDuration = Math.random() * 5 + 5; // Random duration between 5 and 10 seconds
-
-            radhaName.style.left = `${randomLeft}px`;
-            radhaName.style.animationDuration = `${randomDuration}s`;
-
-            document.body.appendChild(radhaName);
-
-            setTimeout(() => {
-                radhaName.remove();
-            }, randomDuration * 1000);
-        });
+        
 
         imageSetup.addEventListener('click', () => {
             imageSetupModal.style.display = 'flex';
@@ -353,14 +425,61 @@
 
         
 
-        imageInput.addEventListener('change', (e) => {
-            let files = e.target.files;
-            for (let i = 0; i < files.length; i++) {
-                images.push(URL.createObjectURL(files[i]));
-            }
-            localStorage.setItem('images', JSON.stringify(images));
-            addMiniImages();
-        });
+        imageInput.addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function () {
+
+    cropModal.style.display = "flex";
+    cropImage.src = reader.result;
+
+    if (cropper) {
+        cropper.destroy();
+    }
+
+    cropper = new Cropper(cropImage, {
+        aspectRatio: 16 / 9,
+        viewMode: 2,
+        autoCropArea: 0.8,
+        dragMode: "move",
+        background: false,
+        zoomable: true,
+        scalable: true,
+        rotatable: true,
+        responsive: true
+    });
+};
+
+    reader.readAsDataURL(file);
+});
+
+rotateBtn.addEventListener("click", () => {
+    if (cropper) {
+        cropper.rotate(90);
+    }
+});
+
+
+
+const saveCropBtn = document.getElementById("saveCropBtn");
+
+saveCropBtn.addEventListener("click", () => {
+
+    const canvas = cropper.getCroppedCanvas({
+        width: 1920,
+        height: 1080
+    });
+
+    const croppedImage = canvas.toDataURL("image/jpeg");
+
+    images.push(croppedImage);
+    localStorage.setItem('images', JSON.stringify(images));
+    addMiniImages();
+
+    cropper.destroy();
+    cropModal.style.display = "none";
+});
 
         window.onload = () => {
             counterElement.textContent = `Conting: ${count}`;
@@ -369,32 +488,42 @@
         };
         
         
-        
+                radhaButton.addEventListener('click', () => {
 
-radhaButton.addEventListener('click', () => {
     count++;
     localStorage.setItem('count', count);
     counterElement.textContent = `Conting: ${count}`;
 
-    let radhaName = document.createElement('div');
-    radhaName.classList.add('radha-name');
-    radhaName.textContent = 'राधा';
-    radhaName.style.color = "red";  // Set color to red
-    const randomLeft = Math.random() * window.innerWidth;
-    const randomDuration = Math.random() * 5 + 5; // Random duration between 5 and 10 seconds
-    radhaName.style.left = `${randomLeft}px`;
-    radhaName.style.animationDuration = `${randomDuration}s`;
+    // 🔹 2 Radha names create होंगे
+    for (let i = 0; i < 2; i++) {
 
-    document.body.appendChild(radhaName);
+        let radhaName = document.createElement('div');
+        radhaName.classList.add('radha-name');
+        radhaName.textContent = 'राधा';
 
-    setTimeout(() => {
-        radhaName.remove();
-    }, randomDuration * 1000);
+        // पहला white, दूसरा red
+        radhaName.style.color = (i === 0) ? "white" : "red";
 
-    // Start slideshow after Radha button click
-    startSlideshow();
+        const randomLeft = Math.random() * window.innerWidth;
+        const randomDuration = Math.random() * 5 + 5;
 
+        radhaName.style.left = `${randomLeft}px`;
+        radhaName.style.animationDuration = `${randomDuration}s`;
+
+        document.body.appendChild(radhaName);
+
+        setTimeout(() => {
+            radhaName.remove();
+        }, randomDuration * 1000);
+    }
+
+
+// 🔹 Popup सिर्फ पहली बार
+    if (!modeSelected) {
+        modePopup.style.display = "flex";
+    }
 });
+
 
 
 
@@ -408,7 +537,9 @@ let imagePool = [];
 let slideshowInterval = null;
 let currentPage = 1;
 let slideshowRunning = false;
+let modeSelected = false;
 async function fetchImages() {
+  
     try {
         // Only Radha Krishna specific terms for search
         const searchTerms = [
@@ -417,10 +548,10 @@ async function fetchImages() {
         ];
 
         // Randomly select one term from the search list
-        const randomSearchTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
+        const randomSearchTerm = "Radha Krishna divine art illustration";
 
         const response = await fetch(
-            `https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(randomSearchTerm)}&image_type=photo&orientation=vertical&per_page=20&page=${currentPage}&safesearch=true`
+            `https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(randomSearchTerm)}&image_type=illustration&orientation=vertical&per_page=20&page=${currentPage}&safesearch=true`
         );
 
         const data = await response.json();
@@ -428,7 +559,11 @@ async function fetchImages() {
         if (!data.hits || data.hits.length === 0) return;
 
         // Adding the fetched images to the pool
-        imagePool = data.hits.map(img => img.largeImageURL);
+        data.hits.forEach(img => {
+            if (!imagePool.includes(img.largeImageURL)) {
+                imagePool.push(img.largeImageURL);
+            }
+        }); 
 
         // Increment page for pagination
         currentPage++;
@@ -472,19 +607,113 @@ async function startSlideshow() {
     }, 10000);
 }
 
+
+onlineModeBtn.addEventListener("click", () => {
+    modePopup.style.display = "none";
+    modeSelected = true;
+    startSlideshow();
+});
+
+offlineModeBtn.addEventListener("click", () => {
+    modePopup.style.display = "none";
+    modeSelected = true;
+    startOfflineSlideshow();
+});
+
+function startOfflineSlideshow() {
+
+    if (images.length === 0) {
+        alert("No offline images uploaded!");
+        return;
+    }
+
+    let index = 0;
+
+    imageSlideshow.style.backgroundImage = `url(${images[0]})`;
+
+    setInterval(() => {
+        index = (index + 1) % images.length;
+        imageSlideshow.style.backgroundImage = `url(${images[index]})`;
+    }, 10000);
+}
+
+/* ===== FRAME EDITOR JS ===== */
+
+const frameUpload = document.getElementById("frameUpload");
+const blurImage = document.getElementById("blurImage");
+const clearImage = document.getElementById("clearImage");
+
+let scale = 1;
+let rotation = 0;
+let posX = 0;
+let posY = 0;
+let dragging = false;
+let startX, startY;
+
+frameUpload.addEventListener("change", e=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+        blurImage.src = reader.result;
+        clearImage.src = reader.result;
+        resetTransform();
+    };
+    reader.readAsDataURL(e.target.files[0]);
+});
+
+function resetTransform(){
+    scale = 1;
+    rotation = 0;
+    posX = 0;
+    posY = 0;
+    updateTransform();
+}
+
+function updateTransform(){
+    const transform =
+        `translate(-50%, -50%) translate(${posX}px, ${posY}px) scale(${scale}) rotate(${rotation}deg)`;
+    blurImage.style.transform = transform;
+    clearImage.style.transform = transform;
+}
+
+/* Zoom */
+document.getElementById("zoomIn").onclick = ()=>{
+    scale += 0.1;
+    updateTransform();
+};
+
+document.getElementById("zoomOut").onclick = ()=>{
+    if(scale > 0.2){
+        scale -= 0.1;
+        updateTransform();
+    }
+};
+
+/* Rotate */
+document.getElementById("rotateFrame").onclick = ()=>{
+    rotation += 90;
+    updateTransform();
+};
+
+/* Drag */
+clearImage.addEventListener("mousedown", e=>{
+    dragging = true;
+    startX = e.clientX - posX;
+    startY = e.clientY - posY;
+    clearImage.style.cursor="grabbing";
+});
+
+document.addEventListener("mouseup", ()=>{
+    dragging = false;
+    clearImage.style.cursor="grab";
+});
+
+document.addEventListener("mousemove", e=>{
+    if(!dragging) return;
+    posX = e.clientX - startX;
+    posY = e.clientY - startY;
+    updateTransform();
+});
+
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
