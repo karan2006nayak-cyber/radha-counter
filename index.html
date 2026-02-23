@@ -233,6 +233,7 @@
 
 .blur-layer{
     position:fixed;
+    z-index:1;
     top:50%;
     left:50%;
     transform:translate(-50%,-50%);
@@ -242,8 +243,8 @@
 
 .frame{
     position:fixed;
-    width:800px;
-    height:450px;
+    width:600px;
+    height:338px;
     top:50%;
     left:50%;
     transform:translate(-50%,-50%);
@@ -281,16 +282,7 @@
 
     <div id="counter">Conting: 0</div>
     <button id="radhaButton">राधा</button>
-    <div id="imageSetup">Set Images</div>
-
-    <div id="imageSetupModal">
-        <div class="modal-content">
-            <h3>Select Images</h3>
-            <input type="file" id="imageInput" accept="image/*" multiple>
-            <div class="mini-img-container" id="miniImages"></div>
-            <button id="okBtn">OK</button>
-        </div>
-    </div>
+    
 
     <div id="imageSlideshow"></div>
     <!-- ===== Frame Editor ===== -->
@@ -348,10 +340,7 @@
         const modePopup = document.getElementById("modePopup");
         const onlineModeBtn = document.getElementById("onlineModeBtn");
         const offlineModeBtn = document.getElementById("offlineModeBtn");
-        
-        
-        let cropper;
-
+      
         let draggingImage = null;
 
         
@@ -425,61 +414,7 @@
 
         
 
-        imageInput.addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
 
-    reader.onload = function () {
-
-    cropModal.style.display = "flex";
-    cropImage.src = reader.result;
-
-    if (cropper) {
-        cropper.destroy();
-    }
-
-    cropper = new Cropper(cropImage, {
-        aspectRatio: 16 / 9,
-        viewMode: 2,
-        autoCropArea: 0.8,
-        dragMode: "move",
-        background: false,
-        zoomable: true,
-        scalable: true,
-        rotatable: true,
-        responsive: true
-    });
-};
-
-    reader.readAsDataURL(file);
-});
-
-rotateBtn.addEventListener("click", () => {
-    if (cropper) {
-        cropper.rotate(90);
-    }
-});
-
-
-
-const saveCropBtn = document.getElementById("saveCropBtn");
-
-saveCropBtn.addEventListener("click", () => {
-
-    const canvas = cropper.getCroppedCanvas({
-        width: 1920,
-        height: 1080
-    });
-
-    const croppedImage = canvas.toDataURL("image/jpeg");
-
-    images.push(croppedImage);
-    localStorage.setItem('images', JSON.stringify(images));
-    addMiniImages();
-
-    cropper.destroy();
-    cropModal.style.display = "none";
-});
 
         window.onload = () => {
             counterElement.textContent = `Conting: ${count}`;
