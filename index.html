@@ -122,6 +122,41 @@
     transition: background-image 1s ease-in-out;
 }
 
+.toggle{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    width:160px;
+    height:55px;
+    background:#999;
+    border-radius:50px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:0.3s;
+    overflow:hidden;
+}
+
+.circle{
+    position:absolute;
+    width:50px;
+    height:50px;
+    background:white;
+    border-radius:50%;
+    left:3px;
+    transition:0.3s;
+}
+
+#toggleText{
+    font-weight:bold;
+    color:white;
+    font-size:16px;
+    letter-spacing:1px;
+    z-index:2;
+    user-select:none;
+}
 
 /* ----- BEST SLIDESHOW EFFECTS ----- */
 
@@ -229,11 +264,8 @@
             background-color: #218838;
         }
         
-        /* ===== FRAME EDITOR ===== */
-
-.blur-layer{
+        .blur-layer{
     position:fixed;
-    z-index:1;
     top:50%;
     left:50%;
     transform:translate(-50%,-50%);
@@ -243,14 +275,13 @@
 
 .frame{
     position:fixed;
-    width:600px;
-    height:338px;
+    width:800px;
+    height:450px;
     top:50%;
     left:50%;
     transform:translate(-50%,-50%);
     overflow:hidden;
     border:2px solid white;
-    z-index:5;
 }
 
 .clear-layer{
@@ -261,87 +292,230 @@
     cursor:grab;
 }
 
-.frame-controls{
+.controls{
     position:fixed;
     bottom:30px;
     left:50%;
     transform:translateX(-50%);
     display:flex;
     gap:10px;
-    z-index:20;
 }
         
+       
+        
     </style>
-    
-  
-
 </head>
 <body>
 
 
+<div id="modeToggle" style="
+position:fixed;
+bottom:10px;
+right:57%;
+transform:translateX(-50%);
+display:flex;
+align-items:center;
+background:#ccc;
+width:150px;
+height:50px;
+border-radius:50px;
+cursor:pointer;
+transition:0.3s;
+">
+
+<div id="toggleCircle" style="
+width:50px;
+height:40px;
+background:white;
+border-radius:50%;
+position:absolute;
+left:2px;
+transition:0.3s;
+"></div>
+
+<span id="toggleText" style="
+width:95%;
+text-align:center;
+font-weight:bold;
+color:white;
+z-index:2;
+">
+OFFLINE
+</span>
+
+</div>
+
+<button id="openPage3Btn" 
+style="
+position:fixed;
+top:20px;
+right:20px;
+background:transparent;
+color:white;
+border:none;
+font-size:18px;
+cursor:pointer;
+">
+Set Images
+</button>
 
     <div id="counter">Conting: 0</div>
     <button id="radhaButton">राधा</button>
     
 
-    <div id="imageSlideshow"></div>
-    <!-- ===== Frame Editor ===== -->
 
-<input type="file" id="frameUpload" style="position:fixed; top:20px; left:20px; z-index:20;">
+
+        
+<div id="page3" style="display:none; width:100%; height:100%; position:absolute; top:0; left:0; background:white; overflow-y:auto; text-align:center; padding-bottom:40px;">
+
+    <div style="margin-top:20px; text-align:center;">
+        <input type="file" id="imageInputPage3">
+    </div>
+
+    <div class="mini-img-container" id="miniImages"></div>
+<button id="page3OkBtn" style="margin-top:20px;">OK</button>
+
+</div>
+
+    <div id="imageSlideshow"></div>
+    
+<!-- Frame Editor Modal -->
+<div id="frameModal" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#ffffff;
+display:none;
+justify-content:center;
+align-items:center;
+z-index:5000;
+flex-direction:column;
+">
 
 <img id="blurImage" class="blur-layer">
 <div class="frame">
     <img id="clearImage" class="clear-layer">
 </div>
 
-<div class="frame-controls">
+<div class="controls">
     <button id="zoomIn">+</button>
     <button id="zoomOut">-</button>
-    <button id="rotateFrame">Rotate</button>
+    <button id="rotate">Rotate</button>
+    <button id="frameOk">OK</button>
 </div>
 
-<!-- Mode Selection Popup -->
-<div id="modePopup" style="
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.8);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index:2000;
-">
-    <div style="
-        background:white;
-        padding:30px;
-        text-align:center;
-        border-radius:10px;
-        width:300px;
-    ">
-        <h3>Choose Slideshow Mode</h3>
-        <button id="onlineModeBtn">Online</button>
-        <button id="offlineModeBtn">Offline</button>
-    </div>
 </div>
+
 
 
     <script>
+      
+      let isOnlineMode = false;
+
+const modeToggle = document.getElementById("modeToggle");
+const toggleCircle = document.getElementById("toggleCircle");
+const toggleText = document.getElementById("toggleText");
+
+modeToggle.addEventListener("click", () => {
+
+    isOnlineMode = !isOnlineMode;
+
+    if(isOnlineMode){
+        modeToggle.style.background = "#4CAF50";
+        toggleCircle.style.left = "107px";
+        toggleText.innerText = "ONLINE";
+    } else {
+        modeToggle.style.background = "#999";
+        toggleCircle.style.left = "3px";
+        toggleText.innerText = "OFFLINE";
+    }
+
+});
+      
+      
+      const imageInput = document.getElementById('imageInput');
+      const blurImage = document.getElementById("blurImage");
+const clearImage = document.getElementById("clearImage");
+const frameModal = document.getElementById("frameModal");
+
+let scale = 1;
+let rotation = 0;
+let posX = 0;
+let posY = 0;
+let dragging = false;
+let startX, startY;
+let selectedImage = null;
+let editingIndex = null;
+
+
+
+function resetTransform(){
+    scale = 1;
+    rotation = 0;
+    posX = 0;
+    posY = 0;
+    updateTransform();
+}
+
+document.getElementById("openPage3Btn").onclick = () => {
+    document.getElementById("page3").style.display = "block";
+};
+
+document.getElementById("zoomIn").onclick = () => {
+    scale += 0.1;
+    updateTransform();
+};
+
+document.getElementById("zoomOut").onclick = () => {
+    if(scale > 0.2){
+        scale -= 0.1;
+        updateTransform();
+    }
+};
+
+document.getElementById("rotate").onclick = () => {
+    rotation += 90;
+    updateTransform();
+};
+
+clearImage.addEventListener("mousedown", e=>{
+    dragging = true;
+    startX = e.clientX - posX;
+    startY = e.clientY - posY;
+    clearImage.style.cursor="grabbing";
+});
+
+document.addEventListener("mouseup", ()=>{
+    dragging = false;
+    clearImage.style.cursor="grab";
+});
+
+document.addEventListener("mousemove", e=>{
+    if(!dragging) return;
+    posX = e.clientX - startX;
+    posY = e.clientY - startY;
+    updateTransform();
+});
+
+function updateTransform(){
+    const transform =
+        `translate(-50%, -50%) translate(${posX}px, ${posY}px) scale(${scale}) rotate(${rotation}deg)`;
+    
+    clearImage.style.transform = transform;
+}
+      
         let count = localStorage.getItem('count') ? parseInt(localStorage.getItem('count')) : 0;
         let images = JSON.parse(localStorage.getItem('images')) || [];
+      const miniImagesContainer = document.getElementById("miniImages");
         const counterElement = document.getElementById('counter');
         const radhaButton = document.getElementById('radhaButton');
-        const imageSetupModal = document.getElementById('imageSetupModal');
-        const imageSetup = document.getElementById('imageSetup');
-        const miniImagesContainer = document.getElementById('miniImages');
-        const okBtn = document.getElementById('okBtn');
         const imageSlideshow = document.getElementById('imageSlideshow');
-        const modePopup = document.getElementById("modePopup");
-        const onlineModeBtn = document.getElementById("onlineModeBtn");
-        const offlineModeBtn = document.getElementById("offlineModeBtn");
-      
+     
+
         let draggingImage = null;
+        
 
         
 
@@ -365,8 +539,23 @@
                 deleteBtn.textContent = 'X';
                 deleteBtn.classList.add('delete-btn');
                 deleteBtn.addEventListener('click', () => deleteImage(index));
+                // 🔵 EDIT BUTTON
+                let editBtn = document.createElement('button');
+                editBtn.textContent = 'Edit';
+                editBtn.style.background = 'blue';
+                editBtn.style.color = 'white';
+                editBtn.style.border = 'none';
+                editBtn.style.padding = '5px 8px';
+                editBtn.style.marginRight = '35px';
+                editBtn.style.position = 'absolute';
+                editBtn.style.top = '5px';
+                editBtn.style.right = '35px';
+                editBtn.style.cursor = 'pointer';
+                
+                editBtn.addEventListener('click', () => editImage(index));
 
                 imgDiv.appendChild(img);
+                imgDiv.appendChild(editBtn);
                 imgDiv.appendChild(deleteBtn);
                 miniImagesContainer.appendChild(imgDiv);
             });
@@ -377,6 +566,19 @@
             localStorage.setItem('images', JSON.stringify(images));
             addMiniImages();
         }
+        function editImage(index){
+
+        selectedImage = images[index];
+    
+        blurImage.src = selectedImage;
+        clearImage.src = selectedImage;
+    
+        editingIndex = index;   // important
+    
+        frameModal.style.display = "flex";
+    
+        resetTransform();
+}
 
         function dragStart(e) {
             draggingImage = e.target;
@@ -404,26 +606,43 @@
 
         
 
-        imageSetup.addEventListener('click', () => {
-            imageSetupModal.style.display = 'flex';
-        });
-        
-        okBtn.addEventListener('click', () => {
-            imageSetupModal.style.display = 'none';
-        });
-
-        
-
-
-
         window.onload = () => {
             counterElement.textContent = `Conting: ${count}`;
             addMiniImages();
             
         };
         
+        const imageInputPage3 = document.getElementById("imageInputPage3");
+
+imageInputPage3.addEventListener("change", (e) => {
+
+    if(!e.target.files.length) return;
+
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = () => {
+
+        frameModal.style.display = "flex";
+
+        blurImage.src = reader.result;
+        clearImage.src = reader.result;
+        selectedImage = reader.result;
+
+        resetTransform();
+    };
+
+    reader.readAsDataURL(file);
+});
         
-                radhaButton.addEventListener('click', () => {
+        
+    radhaButton.addEventListener('click', () => {
+                      // 🔥 MODE CHECK
+    if(isOnlineMode){
+        startSlideshow();
+    } else {
+        startOfflineSlideshow();
+    }
 
     count++;
     localStorage.setItem('count', count);
@@ -453,13 +672,8 @@
     }
 
 
-// 🔹 Popup सिर्फ पहली बार
-    if (!modeSelected) {
-        modePopup.style.display = "flex";
-    }
+    
 });
-
-
 
 
 // ===============================
@@ -472,9 +686,8 @@ let imagePool = [];
 let slideshowInterval = null;
 let currentPage = 1;
 let slideshowRunning = false;
-let modeSelected = false;
+
 async function fetchImages() {
-  
     try {
         // Only Radha Krishna specific terms for search
         const searchTerms = [
@@ -543,17 +756,7 @@ async function startSlideshow() {
 }
 
 
-onlineModeBtn.addEventListener("click", () => {
-    modePopup.style.display = "none";
-    modeSelected = true;
-    startSlideshow();
-});
 
-offlineModeBtn.addEventListener("click", () => {
-    modePopup.style.display = "none";
-    modeSelected = true;
-    startOfflineSlideshow();
-});
 
 function startOfflineSlideshow() {
 
@@ -562,93 +765,94 @@ function startOfflineSlideshow() {
         return;
     }
 
+    if(slideshowInterval){
+        clearInterval(slideshowInterval);
+    }
+
     let index = 0;
 
     imageSlideshow.style.backgroundImage = `url(${images[0]})`;
 
-    setInterval(() => {
+    slideshowInterval = setInterval(() => {
         index = (index + 1) % images.length;
         imageSlideshow.style.backgroundImage = `url(${images[index]})`;
     }, 10000);
 }
 
-/* ===== FRAME EDITOR JS ===== */
 
-const frameUpload = document.getElementById("frameUpload");
-const blurImage = document.getElementById("blurImage");
-const clearImage = document.getElementById("clearImage");
+document.getElementById("frameOk").onclick = () => {
 
-let scale = 1;
-let rotation = 0;
-let posX = 0;
-let posY = 0;
-let dragging = false;
-let startX, startY;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
-frameUpload.addEventListener("change", e=>{
-    const reader = new FileReader();
-    reader.onload = ()=>{
-        blurImage.src = reader.result;
-        clearImage.src = reader.result;
-        resetTransform();
-    };
-    reader.readAsDataURL(e.target.files[0]);
-});
+    const frameWidth = 850;
+    const frameHeight = 450;
 
-function resetTransform(){
-    scale = 1;
-    rotation = 0;
-    posX = 0;
-    posY = 0;
-    updateTransform();
-}
+    canvas.width = frameWidth;
+    canvas.height = frameHeight;
 
-function updateTransform(){
-    const transform =
-        `translate(-50%, -50%) translate(${posX}px, ${posY}px) scale(${scale}) rotate(${rotation}deg)`;
-    blurImage.style.transform = transform;
-    clearImage.style.transform = transform;
-}
+    const img = new Image();
+    img.src = selectedImage;
 
-/* Zoom */
-document.getElementById("zoomIn").onclick = ()=>{
-    scale += 0.1;
-    updateTransform();
-};
+    img.onload = function(){
 
-document.getElementById("zoomOut").onclick = ()=>{
-    if(scale > 0.2){
-        scale -= 0.1;
-        updateTransform();
+    // Canvas setup
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const frameWidth = 800;
+    const frameHeight = 450;
+
+    canvas.width = frameWidth;
+    canvas.height = frameHeight;
+
+    // 🔥 1️⃣ BLUR BACKGROUND DRAW करो
+    ctx.filter = "blur(20px)";
+    ctx.drawImage(img, 0, 0, frameWidth, frameHeight);
+
+    // filter reset
+    ctx.filter = "none";
+
+    // 🔥 2️⃣ CENTER IMAGE DRAW करो (crop वाला)
+    ctx.save();
+    ctx.translate(frameWidth/2, frameHeight/2);
+    ctx.rotate(rotation * Math.PI / 180);
+    ctx.scale(scale, scale);
+
+    ctx.drawImage(
+        img,
+        -img.width/2 + posX,
+        -img.height/2 + posY
+    );
+
+    ctx.restore();
+
+    const croppedImage = canvas.toDataURL();
+
+    if(editingIndex !== null){
+        images[editingIndex] = croppedImage;
+        editingIndex = null;
+    } else {
+        images.push(croppedImage);
     }
+
+    localStorage.setItem('images', JSON.stringify(images));
+
+    addMiniImages();
+
+    frameModal.style.display = "none";
+    document.getElementById("page3").style.display = "block";
+};
 };
 
-/* Rotate */
-document.getElementById("rotateFrame").onclick = ()=>{
-    rotation += 90;
-    updateTransform();
+document.getElementById("page3OkBtn").onclick = () => {
+    document.getElementById("page3").style.display = "none";
 };
-
-/* Drag */
-clearImage.addEventListener("mousedown", e=>{
-    dragging = true;
-    startX = e.clientX - posX;
-    startY = e.clientY - posY;
-    clearImage.style.cursor="grabbing";
-});
-
-document.addEventListener("mouseup", ()=>{
-    dragging = false;
-    clearImage.style.cursor="grab";
-});
-
-document.addEventListener("mousemove", e=>{
-    if(!dragging) return;
-    posX = e.clientX - startX;
-    posY = e.clientY - startY;
-    updateTransform();
-});
 
     </script>
+
+
 </body>
+
+
 </html>
